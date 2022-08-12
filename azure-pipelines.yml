@@ -47,6 +47,7 @@ stages:
   dependsOn: Build
   jobs:
   - job: 'Deploy'
+  - deployment: 'Deploy' 
     displayName: 'Deploy job'
     pool:
       vmImage: 'ubuntu-20.04'
@@ -54,16 +55,17 @@ stages:
     variables:
     - group: stage
     strategy:
+     runOnce:
       deploy:
           steps:
           - download: current
             artifact: 
 
-             - task: AzureWebAppContainer@1
+    - task: AzureWebAppContainer@1
                inputs:
-               appName: $(WebAppName)
-               azureSubscription: 'service1'
-               imageName: $(RegistryName)/$(webRepository):$(build.buildId)
+                 appName: $(WebAppName)
+                 azureSubscription: 'service1'
+                 imageName: $(RegistryName)/$(webRepository):$(build.buildId)
 
              - task: KubernetesManifest@0
                displayName: Create imagePullSecret
