@@ -6,6 +6,7 @@ variables:
   webRepository: 'web'
   leaderboardRepository: 'leaderboard'
   tag: '$(Build.BuildId)'
+  imagePullSecret: 'secret'
 
 stages:
 - stage: 'Build'
@@ -53,37 +54,38 @@ stages:
     variables:
     - group: stage
     strategy:
-       runOnce:
+      runOnce:
         deploy:
-    steps:
-    - download: current
-      artifact: 
-    - task: AzureWebAppContainer@1
-      inputs:
-       appName: $(WebAppName)
-       azureSubscription: 'service1'
-       imageName: $(RegistryName)/$(webRepository):$(build.buildId)
+          steps:
+          - download: current
+            artifact: 
 
-    - task: KubernetesManifest@0
-      displayName: Create imagePullSecret
-      inputs:
-        action: createSecret
-        secretName: $(imagePullSecret)
-        dockerRegistryEndpoint: 'docker1'
-        kubernetesServiceConnection: 'kubernetes1'
-        namespace: 'default'
+             - task: AzureWebAppContainer@1
+               inputs:
+               appName: $(WebAppName)
+               azureSubscription: 'service1'
+               imageName: $(RegistryName)/$(webRepository):$(build.buildId)
+
+             - task: KubernetesManifest@0
+               displayName: Create imagePullSecret
+               inputs:
+               action: createSecret
+               secretName: $(imagePullSecret)
+               dockerRegistryEndpoint: 'docker1'
+               kubernetesServiceConnection: 'kubernetes1'
+               namespace: 'default'
         
-    - task: KubernetesManifest@0
-      displayName: Deploy to Kubernetes cluster
-      inputs:
-       action: deploy
-       kubernetesServiceConnection: 'kubernetes1'
-       namespace: 'default'
-       manifests: |
-        $(Pipeline.Workspace)/manifests/deployment.yml
-        $(Pipeline.Workspace)/manifests/service.yml
-       imagePullSecrets: |
-        $(imagePullSecret)
-       containers: |
-         $(RegistryName)/$(webRepository):$(tag)
-         $(RegistryName)/$(leaderboardRepository):$(tag)
+             - task: KubernetesManifest@0
+               displayName: Deploy to Kubernetes cluster
+               inputs:
+               action: deploy
+               kubernetesServiceConnection: 'kubernetes1'
+               namespace: 'default'
+               manifests: |
+                  $(Pipeline.Workspace)/manifests/deployment.yml
+                  $(Pipeline.Workspace)/manifests/service.yml
+                   imagePullSecrets: |
+                      $(imagePullSecret)
+            containers: |
+                   $(RegistryName)/$(webRepository):$(tag)
+                   $(RegistryName)/$(leaderboardRepository):$(tag)
