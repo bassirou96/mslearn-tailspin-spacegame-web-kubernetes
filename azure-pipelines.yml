@@ -54,8 +54,7 @@ stages:
     variables:
     - group: stage
     strategy:
-      runOnce:
-        deploy:
+      deploy:
           steps:
           - download: current
             artifact: 
