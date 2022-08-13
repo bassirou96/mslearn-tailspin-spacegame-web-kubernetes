@@ -63,7 +63,7 @@ stages:
           - task: AzureWebAppContainer@1
             inputs:
                 appName: $(WebAppName)
-                azureSubscription: 'service1'
+                azureSubscription: 'service2'
                 imageName: $(RegistryName)/$(webRepository):$(build.buildId)
 
           - task: KubernetesManifest@0
