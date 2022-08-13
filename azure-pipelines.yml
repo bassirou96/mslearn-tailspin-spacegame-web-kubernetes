@@ -61,24 +61,24 @@ stages:
           - download: current
             artifact: 
 
-    - task: AzureWebAppContainer@1
-               inputs:
-                 appName: $(WebAppName)
-                 azureSubscription: 'service1'
-                 imageName: $(RegistryName)/$(webRepository):$(build.buildId)
+          - task: AzureWebAppContainer@1
+            inputs:
+                appName: $(WebAppName)
+                azureSubscription: 'service1'
+                imageName: $(RegistryName)/$(webRepository):$(build.buildId)
 
-             - task: KubernetesManifest@0
-               displayName: Create imagePullSecret
-               inputs:
-               action: createSecret
-               secretName: $(imagePullSecret)
-               dockerRegistryEndpoint: 'docker1'
-               kubernetesServiceConnection: 'kubernetes1'
-               namespace: 'default'
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+             action: createSecret
+             secretName: $(imagePullSecret)
+             dockerRegistryEndpoint: 'docker1'
+             kubernetesServiceConnection: 'kubernetes1'
+             namespace: 'default'
         
-             - task: KubernetesManifest@0
-               displayName: Deploy to Kubernetes cluster
-               inputs:
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
                action: deploy
                kubernetesServiceConnection: 'kubernetes1'
                namespace: 'default'
@@ -87,6 +87,6 @@ stages:
                   $(Pipeline.Workspace)/manifests/service.yml
                    imagePullSecrets: |
                       $(imagePullSecret)
-            containers: |
+               containers: |
                    $(RegistryName)/$(webRepository):$(tag)
                    $(RegistryName)/$(leaderboardRepository):$(tag)
